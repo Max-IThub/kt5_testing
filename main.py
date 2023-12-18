@@ -1,52 +1,41 @@
 import sqlite3
 
-try:
-    sqlite_connection = sqlite3.connect('sqlite_python.db')
-    cursor = sqlite_connection.cursor()
-    print("БД подключена к SQLite")
-
-
-    create_dogs_table_query = '''
-    CREATE TABLE IF NOT EXISTS Dogs (
-        ID INTEGER PRIMARY KEY,
-        Name TEXT,
-        Image TEXT,
-        Breed TEXT,
-        SubBreed TEXT
+def create_table(cursor, table_name, columns):
+    query = f'''
+    CREATE TABLE IF NOT EXISTS {table_name} (
+        {', '.join(columns)}
     );
     '''
-    cursor.execute(create_dogs_table_query)
-    print("Таблица собак создана")
+    cursor.execute(query)
+    print(f"Таблица {table_name} создана")
 
+def main():
+    try:
+        sqlite_connection = sqlite3.connect('sqlite_python.db')
+        cursor = sqlite_connection.cursor()
+        print("Успешно подключено к SQLite")
 
-    create_kennels_table_query = '''
-    CREATE TABLE IF NOT EXISTS Kennels (
-        ID INTEGER PRIMARY KEY,
-        Country TEXT,
-        City TEXT
-    );
-    '''
-    cursor.execute(create_kennels_table_query)
-    print("Таблица питомников создана")
+        # Создание таблицы Dogs
+        dogs_columns = ['ID INTEGER PRIMARY KEY', 'Name TEXT', 'Image TEXT', 'Breed TEXT', 'SubBreed TEXT']
+        create_table(cursor, 'Dogs', dogs_columns)
 
+        # Создание таблицы Kennels
+        kennels_columns = ['ID INTEGER PRIMARY KEY', 'Country TEXT', 'City TEXT']
+        create_table(cursor, 'Kennels', kennels_columns)
 
-    create_buyers_table_query = '''
-    CREATE TABLE IF NOT EXISTS Buyers (
-        ID INTEGER PRIMARY KEY,
-        FirstName TEXT,
-        LastName TEXT,
-        PreferredBreeds TEXT
-    );
-    '''
-    cursor.execute(create_buyers_table_query)
-    print("Таблица потенциальныx покупателей создана")
+        # Создание таблицы Buyers
+        buyers_columns = ['ID INTEGER PRIMARY KEY', 'FirstName TEXT', 'LastName TEXT', 'PreferredBreeds TEXT']
+        create_table(cursor, 'Buyers', buyers_columns)
 
-    sqlite_connection.commit()
-    cursor.close()
+        sqlite_connection.commit()
+        print("Таблицы успешно созданы")
 
-except sqlite3.Error as error:
-    print("Ошибка при подключении к SQLite:", error)
-finally:
-    if sqlite_connection:
-        sqlite_connection.close()
-        print("Соединение с SQLite закрыто")
+    except sqlite3.Error as error:
+        print("Ошибка при подключении к SQLite:", error)
+    finally:
+        if sqlite_connection:
+            sqlite_connection.close()
+            print("Соединение с SQLite закрыто")
+
+if __name__ == '__main__':
+    main()
